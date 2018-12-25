@@ -1,7 +1,7 @@
 
 let {success, fail} = require("../utils/myUtils")
 let myUtils = require("../utils/myUtils")
-let walletModel = require("../models/wallet")
+let walletService = require("../services/wallet")
 let httpRequest = require("../utils/httpRequest")
 let config = require("../config/config")
 
@@ -25,7 +25,7 @@ module.exports = {
         console.log(ctx.request.body)
         let {wallet, password} = ctx.request.body
         //获取钱包里面所有的私钥配置EOSJS
-        let privatekeyList = await walletModel.getWalletPrivatekeyList(wallet, password)
+        let privatekeyList = await walletService.getWalletPrivatekeyList(wallet, password)
         eos = myUtils.getEOSJS(privatekeyList)
 
         let ramData = await eos.getTableRows(true, "eosio", "eosio", "global")
@@ -35,20 +35,20 @@ module.exports = {
 
         let ramInfo = await getRamInfo()
         ctx.body = success({
-            ramPrice: ramInfo.ramPrice,
-            ramTotal: ramTotal,
-            ramAvailable: ramTotal - ramInfo.ramUsed
+            ramPrice: ramInfo.ramPrice.toFixed(4),
+            ramTotal: ramTotal.toFixed(2),
+            ramAvailable: (ramTotal - ramInfo.ramUsed).toFixed(2)
         })
     },
 
     netResourceTransactionRam: async (ctx) => {
         console.log(ctx.request.body)
-        let {amount, transaction_type, account, wallet, password} = ctx.request.body
-        let privatekeyList = await walletModel.getWalletPrivatekeyList(wallet, password)
+        let {amount, action, account, wallet, password} = ctx.request.body
+        let privatekeyList = await walletService.getWalletPrivatekeyList(wallet, password)
         eos = myUtils.getEOSJS(privatekeyList)
 
         let result
-        if (transaction_type == 1) {
+        if (action == 1) {
             console.log("买ram")
             let ramInfo = await getRamInfo()
             let ramAmount = parseInt(amount / ramInfo.ramPrice * 1024)
@@ -83,7 +83,7 @@ module.exports = {
         console.log(ctx.request.body)
         let {account} = ctx.request.body
 
-        let res = await httpRequest.postRequest(config.accountInfo, {"account_name": account})
+        let res = await httpRequest.postRequest(config.accountMethods.accountInfo, {"account_name": account})
         if (res.code == 0) {
             data = res.data
             //1. 计算NET价格
@@ -114,15 +114,15 @@ module.exports = {
 
     netResourceTransactionBandwidth: async (ctx) => {
         console.log(ctx.request.body)
-        let {net_amount, cpu_amount, bandwidth_transaction_type, account, wallet, password} = ctx.request.body
+        let {net_amount, cpu_amount, action, account, wallet, password} = ctx.request.body
 
         //获取钱包里面所有的私钥配置EOSJS
-        let privatekeyList = await walletModel.getWalletPrivatekeyList(wallet, password)
+        let privatekeyList = await walletService.getWalletPrivatekeyList(wallet, password)
         eos = myUtils.getEOSJS(privatekeyList)
 
         let result
         console.log(typeof bandwidth_transaction_type)
-        if (bandwidth_transaction_type == 1) {
+        if (action == '1') {
             //抵押EOS购买NET、CPU
             result = await eos.transaction(tr => {
                 tr.delegatebw({

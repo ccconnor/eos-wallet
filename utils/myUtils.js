@@ -4,8 +4,8 @@ let config = require("../config/config")
 
 module.exports = {
     getEOSJS: (keyProvider) => {
-        config.eosconfig.keyProvider = keyProvider
-        return Eos(config.eosconfig)
+        config.eosConfig.keyProvider = keyProvider
+        return Eos(config.eosConfig)
     },
 
     success: (data) => {

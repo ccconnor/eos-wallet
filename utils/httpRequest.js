@@ -39,9 +39,9 @@ async function httpRequest(method, url, params) {
 function generateURL(path) {
     let domain = ""
     if (path.indexOf("/v1/wallet/") == 0) {
-        domain = config.walletAddress
+        domain = config.walletConfig.walletAddress
     } else {
-        domain = config.eosconfig.httpEndpoint
+        domain = config.eosConfig.httpEndpoint
     }
     return domain + path
 }

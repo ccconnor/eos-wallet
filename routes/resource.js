@@ -1,7 +1,7 @@
 const router = require('koa-router')()
-const netResourceController = require("../controllers/netResource")
+const netResourceController = require("../controllers/resource")
 
-router.prefix('/net_resource')
+router.prefix('/resource')
 router.post("/ram/info", netResourceController.netResourceGetRamInfo)
 router.post("/ram/transaction", netResourceController.netResourceTransactionRam)
 router.post("/bandwidth/price", netResourceController.netResourceGetBandwidthPrice)

@@ -9,7 +9,7 @@ module.exports = {
         console.log(JSON.stringify(ctx.request.body))
         let { wallet, password } = ctx.request.body
         //获取钱包管理的所有公私钥对
-        let res = await httpRequest.postRequest(config.walletGetKeys, [wallet, password])
+        let res = await httpRequest.postRequest(config.walletMethods.walletGetKeys, [wallet, password])
 
         let accountList = []
         if (res.code == 0) {
@@ -17,7 +17,7 @@ module.exports = {
                 let keys = res.data[index]
                 console.log(keys[0])
                 //查询公钥关联的所有账号
-                let resData = await httpRequest.postRequest(config.accountListForKey, { "public_key": keys[0] })
+                let resData = await httpRequest.postRequest(config.accountMethods.accountListForKey, { "public_key": keys[0] })
                 if (resData.code == 0) {
                     resData.data.account_names.forEach(account => {
                         //去重
@@ -41,7 +41,7 @@ module.exports = {
 
         //１．获取钱包里面所有的私钥
         let privatekeyList = []
-        let res = await httpRequest.postRequest(config.walletGetKeys, [wallet, password])
+        let res = await httpRequest.postRequest(config.walletMethods.walletGetKeys, [wallet, password])
         if (res.code == 0 && res.data.length > 0) {
             for (const index in res.data) {
                 let keys = res.data[index]
@@ -98,7 +98,7 @@ module.exports = {
     accountBalance: async (ctx) => {
         let {code, account} = ctx.request.body
         let params = {"code":code,"account":account}
-        let res = await httpRequest.postRequest(config.accountBalance, params)
+        let res = await httpRequest.postRequest(config.accountMethods.accountBalance, params)
 
         let currencyList = []
         if (res.code == 0) {
@@ -119,7 +119,14 @@ module.exports = {
 
     accountInfo: async (ctx) =>{
         let {account} = ctx.request.body
-        let res = await httpRequest.postRequest(config.accountInfo, {"account_name":account})
+        let res = await httpRequest.postRequest(config.accountMethods.accountInfo, {"account_name":account})
         ctx.body = res
+    },
+
+    switchAccount: async (ctx) => {
+        console.log(ctx.request.body)
+        let {account} = ctx.request.body
+        await walletService.setCurrentAccount(account)
+        ctx.body = success("")
     },
 }
