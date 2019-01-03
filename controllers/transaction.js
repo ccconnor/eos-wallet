@@ -3,16 +3,6 @@ let walletService = require("../services/wallet")
 let {success, fail} = require("../utils/myUtils")
 
 module.exports = {
-    getIdentity: async (ctx) => {
-        console.log(ctx.request.body)
-        ctx.body = await walletService.getCurrentAccount()
-    },
-
-    forgetIdentity: async (ctx) => {
-        console.log(ctx.request.body)
-        ctx.body = true
-    },
-
     transfer: async (ctx) => {
         console.log(ctx.request.body)
         let {from, to, amount, symbol, memo, wallet, password} = ctx.request.body
@@ -29,7 +19,7 @@ module.exports = {
         ctx.body = data
     },
 
-    transaction: async (ctx) => {
+    pushActions: async (ctx) => {
         console.log(ctx.request.body)
         let {wallet, password, params} = ctx.request.body
         let privatekeyList = walletService.getWalletPrivatekeyList(wallet, password)
